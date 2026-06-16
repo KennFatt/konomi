@@ -5,7 +5,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/KennFatt/forgejo-konomi/forgejo"
+	"github.com/KennFatt/konomi/forgejo"
 )
 
 // WritePullDetailMarkdown renders the full pull request detail as Markdown.

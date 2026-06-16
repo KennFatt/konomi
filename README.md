@@ -8,7 +8,7 @@
 
 ```bash
 # From source
-go install github.com/KennFatt/forgejo-konomi@latest
+go install github.com/KennFatt/konomi@latest
 ```
 
 Or build locally (see [Building from Source](#building-from-source)).
@@ -105,8 +105,8 @@ konomi/
 ## Building from Source
 
 ```bash
-git clone https://github.com/KennFatt/forgejo-konomi
-cd forgejo-konomi
+git clone https://github.com/KennFatt/konomi
+cd konomi
 make build
 ```
 

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/KennFatt/forgejo-konomi/forgejo"
+	"github.com/KennFatt/konomi/forgejo"
 )
 
 // WritePullDetailJSON writes the full pull request detail as indented JSON.

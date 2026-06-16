@@ -7,9 +7,9 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/KennFatt/forgejo-konomi/config"
-	"github.com/KennFatt/forgejo-konomi/forgejo"
-	"github.com/KennFatt/forgejo-konomi/output"
+	"github.com/KennFatt/konomi/config"
+	"github.com/KennFatt/konomi/forgejo"
+	"github.com/KennFatt/konomi/output"
 )
 
 func main() {

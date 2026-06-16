@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/KennFatt/forgejo-konomi/forgejo"
+	"github.com/KennFatt/konomi/forgejo"
 )
 
 // WritePullListTable formats a list of pull requests as a table.
