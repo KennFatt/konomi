@@ -9,14 +9,17 @@ import (
 )
 
 // WritePullDetailMarkdown renders the full pull request detail as Markdown.
-func WritePullDetailMarkdown(w io.Writer, detail *forgejo.PullDetail) error {
+// When reviewsOnly is true, only reviews and comments sections are included.
+func WritePullDetailMarkdown(w io.Writer, detail *forgejo.PullDetail, reviewsOnly bool) error {
 	pr := detail.PullRequest
 
-	writeHeader(w, pr)
-	writeMetadata(w, pr)
-	writeDescription(w, pr)
-	writeCommits(w, detail.Commits)
-	writeFiles(w, detail.Files)
+	if !reviewsOnly {
+		writeHeader(w, pr)
+		writeMetadata(w, pr)
+		writeDescription(w, pr)
+		writeCommits(w, detail.Commits)
+		writeFiles(w, detail.Files)
+	}
 	writeReviews(w, detail.Reviews)
 	writeComments(w, detail.Comments)
 
@@ -144,7 +147,11 @@ func writeReviews(w io.Writer, reviews []forgejo.ReviewWithComments) {
 
 		fmt.Fprint(w, "#### Comments\n\n")
 		for _, c := range rwc.Comments {
-			fmt.Fprintf(w, "- **%s** on `%s` (line %d):\n", c.User.Login, c.Path, c.Position)
+			resolved := ""
+			if c.Resolver != nil {
+				resolved = fmt.Sprintf(" [resolved by %s]", c.Resolver.Login)
+			}
+			fmt.Fprintf(w, "- **%s** on `%s` (line %d)%s:\n", c.User.Login, c.Path, c.Position, resolved)
 			if c.DiffHunk != "" {
 				fmt.Fprint(w, "  ```diff\n")
 				for _, line := range strings.Split(c.DiffHunk, "\n") {

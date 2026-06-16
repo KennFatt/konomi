@@ -111,9 +111,9 @@ func runDetail(cfg *config.Config, client *forgejo.Client) {
 
 	var writeErr error
 	if cfg.Format == "json" {
-		writeErr = output.WritePullDetailJSON(out, detail)
+		writeErr = output.WritePullDetailJSON(out, detail, cfg.ReviewsOnly)
 	} else {
-		writeErr = output.WritePullDetailMarkdown(out, detail)
+		writeErr = output.WritePullDetailMarkdown(out, detail, cfg.ReviewsOnly)
 	}
 	if writeErr != nil {
 		fmt.Fprintln(os.Stderr, "error:", writeErr)

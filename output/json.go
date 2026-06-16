@@ -9,7 +9,18 @@ import (
 )
 
 // WritePullDetailJSON writes the full pull request detail as indented JSON.
-func WritePullDetailJSON(w io.Writer, detail *forgejo.PullDetail) error {
+// When reviewsOnly is true, only reviews and comments are included.
+func WritePullDetailJSON(w io.Writer, detail *forgejo.PullDetail, reviewsOnly bool) error {
+	if reviewsOnly {
+		filtered := &struct {
+			Reviews  []forgejo.ReviewWithComments `json:"reviews"`
+			Comments []forgejo.Comment            `json:"comments"`
+		}{
+			Reviews:  detail.Reviews,
+			Comments: detail.Comments,
+		}
+		return writeJSON(w, filtered)
+	}
 	return writeJSON(w, detail)
 }
 

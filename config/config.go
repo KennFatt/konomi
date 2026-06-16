@@ -9,12 +9,13 @@ import (
 
 // Config holds all CLI and environment configuration.
 type Config struct {
-	URL    string
-	Token  string
-	State  string
-	Format string
-	Output string
-	Args   []string
+	URL         string
+	Token       string
+	State       string
+	Format      string
+	Output      string
+	ReviewsOnly bool
+	Args        []string
 
 	ShowHelp bool
 }
@@ -28,6 +29,7 @@ func Parse() *Config {
 	flag.StringVar(&cfg.State, "state", "open", "PR state filter: open, closed, all")
 	flag.StringVar(&cfg.Format, "format", "markdown", "Output format: markdown, json")
 	flag.StringVar(&cfg.Output, "output", "", "Write output to file instead of stdout")
+	flag.BoolVar(&cfg.ReviewsOnly, "reviews-only", false, "Only show reviews and comments in output")
 
 	help := flag.Bool("help", false, "Show this help message")
 	flag.BoolVar(help, "h", false, "Show this help message")
@@ -89,12 +91,13 @@ Arguments:
   pr-number      Pull request number (e.g., 42)
 
 Flags:
-  --url      string   Forgejo instance URL (env: FORGEJO_URL)
-  --token    string   Forgejo API token (env: FORGEJO_TOKEN)
-  --state    string   PR state filter: open, closed, all (default: open)
-  --format   string   Output format: markdown, json (default: markdown)
-  --output   string   Write output to file instead of stdout
-  --help, -h          Show this help message
+  --url          string   Forgejo instance URL (env: FORGEJO_URL)
+  --token        string   Forgejo API token (env: FORGEJO_TOKEN)
+  --state        string   PR state filter: open, closed, all (default: open)
+  --format       string   Output format: markdown, json (default: markdown)
+  --output       string   Write output to file instead of stdout
+  --reviews-only          Only show reviews and comments in output
+  --help, -h              Show this help message
 
 Environment:
   FORGEJO_URL     Forgejo instance URL

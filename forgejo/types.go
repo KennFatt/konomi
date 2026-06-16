@@ -90,6 +90,7 @@ type PullReviewComment struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	User      *User     `json:"user"`
+	Resolver  *User     `json:"resolver"`
 	ReviewID  int64     `json:"pull_request_review_id"`
 }
 
