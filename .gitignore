@@ -1,0 +1,4 @@
+bin/
+konomi
+*.test
+dist/
