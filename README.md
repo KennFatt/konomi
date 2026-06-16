@@ -7,7 +7,6 @@
 ## Installation
 
 ```bash
-# From source
 go install github.com/KennFatt/konomi@latest
 ```
 
@@ -35,6 +34,12 @@ konomi --format json owner/repo 42
 # Write output to a file
 konomi owner/repo 42 --output pr42.md
 konomi --format json owner/repo 42 --output pr42.json
+
+# Show only reviews and comments
+konomi owner/repo 42 --reviews-only
+
+# Reviews-only as JSON
+konomi owner/repo 42 --reviews-only --format json
 ```
 
 ## Usage
@@ -53,6 +58,7 @@ konomi [flags] <owner/repo> <pr-number>   Show pull request details
 | `--state` | - | `open` | PR state filter: `open`, `closed`, `all` |
 | `--format` | - | `markdown` | Output format: `markdown`, `json` |
 | `--output` | - | - | Write output to file instead of stdout |
+| `--reviews-only` | - | `false` | Only show reviews and comments in output |
 | `--help`, `-h` | - | - | Show help message |
 
 > Flags must be placed **before** positional arguments due to Go's `flag` package behavior.
@@ -66,6 +72,7 @@ konomi [flags] <owner/repo> <pr-number>   Show pull request details
 - **Commits**: Each commit with short hash, URL, message, and author
 - **Changed files**: Per-file status (added/modified/deleted) with additions/deletions
 - **Reviews**: Review state (approved/changes requested/comment/pending/dismissed), body, and inline comments with diff context
+  - Inline comments show `[resolved by <user>]` when the comment has been resolved via the Forgejo UI
 - **General comments**: Non-review discussion on the PR
 
 ### JSON
@@ -76,6 +83,10 @@ The same data structured as JSON:
 - `files` - list of changed files with stats
 - `reviews` - list of reviews, each with its inline `Comments`
 - `comments` - general (non-review) comments on the PR
+
+When `--reviews-only` is used, JSON output contains only:
+- `reviews` - reviews with inline comments (each comment includes a `resolver` field `null` if unresolved)
+- `comments` - general comments
 
 ## Architecture
 
