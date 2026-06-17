@@ -63,11 +63,11 @@ func (c *Client) GetPullDetail(owner, repo string, index int64) (*PullDetail, er
 	}
 
 	type partial struct {
-		commits []Commit
-		files   []ChangedFile
-		reviews []PullReview
+		commits  []Commit
+		files    []ChangedFile
+		reviews  []PullReview
 		comments []Comment
-		err     error
+		err      error
 	}
 
 	ch := make(chan partial, 4)
