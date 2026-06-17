@@ -1,6 +1,7 @@
 package forgejo
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -39,8 +40,8 @@ func New(baseURL, token string) *Client {
 	}
 }
 
-// doGet performs a single GET request and returns the raw body.
-func (c *Client) doGet(path string, params map[string]string) ([]byte, error) {
+// doHTTP is the shared request runner for all API calls.
+func (c *Client) doHTTP(method, path string, params map[string]string, body any) ([]byte, error) {
 	u, err := url.Parse(c.baseURL + "/api/v1" + path)
 	if err != nil {
 		return nil, fmt.Errorf("invalid URL: %w", err)
@@ -52,12 +53,24 @@ func (c *Client) doGet(path string, params map[string]string) ([]byte, error) {
 	}
 	u.RawQuery = q.Encode()
 
-	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	var reqBody io.Reader
+	if body != nil {
+		jsonBytes, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("marshal body: %w", err)
+		}
+		reqBody = bytes.NewReader(jsonBytes)
+	}
+
+	req, err := http.NewRequest(method, u.String(), reqBody)
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	req.Header.Set("Authorization", "token "+c.token)
 	req.Header.Set("Accept", "application/json")
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 
 	resp, err := c.http.Do(req)
 	if err != nil {
@@ -65,17 +78,22 @@ func (c *Client) doGet(path string, params map[string]string) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
+	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("read body: %w", err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		msg := extractMessage(body)
+		msg := extractMessage(respBody)
 		return nil, &APIError{StatusCode: resp.StatusCode, Message: msg}
 	}
 
-	return body, nil
+	return respBody, nil
+}
+
+// doGet performs a single GET request and returns the raw body.
+func (c *Client) doGet(path string, params map[string]string) ([]byte, error) {
+	return c.doHTTP(http.MethodGet, path, params, nil)
 }
 
 // getArray fetches a paginated list endpoint and returns a single JSON array.
@@ -138,4 +156,9 @@ func extractMessage(body []byte) string {
 		return string(body[:200])
 	}
 	return string(body)
+}
+
+// doRequest performs an HTTP request with the given method and optional JSON body.
+func (c *Client) doRequest(method, path string, body any) ([]byte, error) {
+	return c.doHTTP(method, path, nil, body)
 }
