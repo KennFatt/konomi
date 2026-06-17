@@ -40,6 +40,12 @@ konomi owner/repo 42 --reviews-only
 
 # Reviews-only as JSON
 konomi owner/repo 42 --reviews-only --format json
+
+# Close PR #42 with a comment
+konomi owner/repo 42 --close --reason "Superseded by #100"
+
+# Close PR #42 without a comment
+konomi owner/repo 42 --close
 ```
 
 ## Usage
@@ -59,6 +65,8 @@ konomi [flags] <owner/repo> <pr-number>   Show pull request details
 | `--format` | - | `markdown` | Output format: `markdown`, `json` |
 | `--output` | - | - | Write output to file instead of stdout |
 | `--reviews-only` | - | `false` | Only show reviews and comments in output |
+| `--close` | - | `false` | Close the pull request after commenting |
+| `--reason` | - | - | Reason for closing the pull request (optional) |
 | `--help`, `-h` | - | - | Show help message |
 
 > Flags must be placed **before** positional arguments due to Go's `flag` package behavior.

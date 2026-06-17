@@ -15,6 +15,8 @@ type Config struct {
 	Format      string
 	Output      string
 	ReviewsOnly bool
+	Close       bool
+	Reason      string
 	Args        []string
 
 	ShowHelp bool
@@ -30,6 +32,8 @@ func Parse() *Config {
 	flag.StringVar(&cfg.Format, "format", "markdown", "Output format: markdown, json")
 	flag.StringVar(&cfg.Output, "output", "", "Write output to file instead of stdout")
 	flag.BoolVar(&cfg.ReviewsOnly, "reviews-only", false, "Only show reviews and comments in output")
+	flag.BoolVar(&cfg.Close, "close", false, "Close the pull request after commenting")
+	flag.StringVar(&cfg.Reason, "reason", "", "Reason for closing the pull request (optional)")
 
 	help := flag.Bool("help", false, "Show this help message")
 	flag.BoolVar(help, "h", false, "Show this help message")
@@ -97,6 +101,8 @@ Flags:
   --format       string   Output format: markdown, json (default: markdown)
   --output       string   Write output to file instead of stdout
   --reviews-only          Only show reviews and comments in output
+  --close                 Close the pull request after commenting
+  --reason        string   Reason for closing the pull request (optional)
   --help, -h              Show this help message
 
 Environment:
@@ -108,5 +114,6 @@ Examples:
   konomi owner/repo --state closed
   konomi owner/repo 42
   konomi owner/repo 42 --format json --output pr42.json
+  konomi owner/repo 42 --close --reason "Superseded by #100"
 `)
 }

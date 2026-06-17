@@ -3,6 +3,7 @@ package forgejo
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -90,4 +91,34 @@ func ParseOwnerRepo(s string) (owner, repo string, err error) {
 		return "", "", fmt.Errorf("invalid repository format %q, expected owner/repo", s)
 	}
 	return parts[0], parts[1], nil
+}
+
+// EditPull updates a pull request with the given options.
+// Supported options keys: "state", "body", "title", etc.
+func (c *Client) EditPull(owner, repo string, index int64, opts map[string]any) (*PullRequest, error) {
+	body, err := c.doRequest(http.MethodPatch, fmt.Sprintf("/repos/%s/%s/pulls/%d", owner, repo, index), opts)
+	if err != nil {
+		return nil, fmt.Errorf("edit pull: %w", err)
+	}
+	var pr PullRequest
+	if err := json.Unmarshal(body, &pr); err != nil {
+		return nil, fmt.Errorf("decode pull: %w", err)
+	}
+	return &pr, nil
+}
+
+// CreateIssueComment adds a comment to a pull request (treated as an issue).
+func (c *Client) CreateIssueComment(owner, repo string, index int64, commentBody string) (*Comment, error) {
+	opt := struct {
+		Body string `json:"body"`
+	}{Body: commentBody}
+	respBody, err := c.doRequest(http.MethodPost, fmt.Sprintf("/repos/%s/%s/issues/%d/comments", owner, repo, index), opt)
+	if err != nil {
+		return nil, fmt.Errorf("create issue comment: %w", err)
+	}
+	var comment Comment
+	if err := json.Unmarshal(respBody, &comment); err != nil {
+		return nil, fmt.Errorf("decode comment: %w", err)
+	}
+	return &comment, nil
 }

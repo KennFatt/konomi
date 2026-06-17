@@ -5,11 +5,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 
 	"github.com/KennFatt/konomi/config"
 	"github.com/KennFatt/konomi/forgejo"
-	"github.com/KennFatt/konomi/output"
 )
 
 func main() {
@@ -35,6 +33,12 @@ func main() {
 
 	client := forgejo.New(cfg.URL, cfg.Token)
 
+	// Close flag requires a PR number (exactly one positional arg after repo).
+	if cfg.Close && len(cfg.Args) != 2 {
+		fmt.Fprintln(os.Stderr, "error: --close flag requires <owner/repo> <pr-number>")
+		os.Exit(1)
+	}
+
 	switch len(cfg.Args) {
 	case 1:
 		runList(cfg, client)
@@ -57,68 +61,6 @@ func openOutput(path string) io.WriteCloser {
 		os.Exit(1)
 	}
 	return f
-}
-
-func runList(cfg *config.Config, client *forgejo.Client) {
-	owner, repo, err := forgejo.ParseOwnerRepo(cfg.Args[0])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
-	}
-
-	pulls, err := client.ListPulls(owner, repo, cfg.State)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
-	}
-
-	out := openOutput(cfg.Output)
-	defer out.Close()
-
-	var writeErr error
-	if cfg.Format == "json" {
-		writeErr = output.WritePullListJSON(out, pulls)
-	} else {
-		writeErr = output.WritePullListTable(out, pulls)
-	}
-	if writeErr != nil {
-		fmt.Fprintln(os.Stderr, "error:", writeErr)
-		os.Exit(1)
-	}
-}
-
-func runDetail(cfg *config.Config, client *forgejo.Client) {
-	owner, repo, err := forgejo.ParseOwnerRepo(cfg.Args[0])
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
-	}
-
-	index, err := strconv.ParseInt(cfg.Args[1], 10, 64)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: invalid PR number %q\n", cfg.Args[1])
-		os.Exit(1)
-	}
-
-	detail, err := client.GetPullDetail(owner, repo, index)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
-	}
-
-	out := openOutput(cfg.Output)
-	defer out.Close()
-
-	var writeErr error
-	if cfg.Format == "json" {
-		writeErr = output.WritePullDetailJSON(out, detail, cfg.ReviewsOnly)
-	} else {
-		writeErr = output.WritePullDetailMarkdown(out, detail, cfg.ReviewsOnly)
-	}
-	if writeErr != nil {
-		fmt.Fprintln(os.Stderr, "error:", writeErr)
-		os.Exit(1)
-	}
 }
 
 type nopCloser struct {
